@@ -18,105 +18,111 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         home: Scaffold(
           appBar: AppBar(),
-        body: Column(
-          children: [
-            TextField(
-              controller: _textController1,
-              decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.blueAccent,
-                    ),
-                    borderRadius: BorderRadius.circular(10.0),
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Center(
+            child: Column(
+              children: [
+                TextField(
+                  controller: _textController1,
+                  decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderSide:const  BorderSide(
+                          color: Colors.blueAccent,
+                        ),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: (){
+                          _textController1.clear();
+                        },
+                        icon: Icon(Icons.clear),
+                      )
                   ),
-                  suffixIcon: IconButton(
-                    onPressed: (){
-                      _textController1.clear();
-                    },
-                    icon: Icon(Icons.clear),
-                  )
-              ),
-            ),
-//====================================================
+                ),
 
-            TextField(
-              controller: _textController2,
-              decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.blueAccent,
-                    ),
-                    borderRadius: BorderRadius.circular(10.0),
+                const SizedBox(height: 20,),
+
+                TextField(
+                  controller: _textController2,
+                  decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                          color: Colors.blueAccent,
+                        ),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+
+
+                      suffixIcon: IconButton(
+                        onPressed: (){
+                          _textController2.clear();
+                        },
+                        icon: Icon(Icons.clear),
+                      )
                   ),
+                ),
+
+                const SizedBox(height: 20,),
+
+                ElevatedButton(
+                  onPressed: ()async{
+                try{UserCredential userCredential =await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                  email: _textController1.text, password: _textController2.text);
+                }
+                on FirebaseAuthException catch(e){
+                  if(e.code=="weak-password"){
+                    print("weak passord");
+                  }
+                  else if(e.code=="email-already-in-use"){
+                    print("already exist");
+                  }
+                }
+                catch(e){
+                   print("e");
+                }
+                },
+                child: Text("Create User"),
+                ),
+
+                // sign in
+                 ElevatedButton(onPressed: ()async{
+                try{UserCredential userCredential =await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  email: _textController1.text, password: _textController2.text);
+                 // print(userCredential);
+                 print("exist");
+                 print(userCredential.user?.emailVerified);
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),);
+                 if(userCredential.user?.emailVerified==false){
+                  User? user =FirebaseAuth.instance.currentUser;
+                  await user?.sendEmailVerification();
 
 
-                  suffixIcon: IconButton(
-                    onPressed: (){
-                      _textController2.clear();
-                    },
-                    icon: Icon(Icons.clear),
-                  )
-              ),
-            ),
+                 }
+                }
+                on FirebaseAuthException catch(e){
+                  if(e.code=="user-not-found"){
+                    print("user-not-found");
+                  }
+                  else if(e.code=="wrong-password"){
+                    print("wrong-passord");
+                  }
+                }
 
+                catch(e){
+                   print("e");
+                }
 
-            //
-            ElevatedButton(onPressed: ()async{
-            try{UserCredential userCredential =await FirebaseAuth.instance.createUserWithEmailAndPassword(
-              email: _textController1.text, password: _textController2.text);
-             // print(userCredential);
-            }
-            on FirebaseAuthException catch(e){
-              if(e.code=="weak-password"){
-                print("weak passord");
-              }
-              else if(e.code=="email-already-in-use"){
-                print("already exist");
-              }
-            }
-            catch(e){
-               print("e");
-            }
-            },
-            child: Text("createUserWithEmailAndPassword"),
-            ),
+                },
 
-            // sign in
-             ElevatedButton(onPressed: ()async{
-            try{UserCredential userCredential =await FirebaseAuth.instance.signInWithEmailAndPassword(
-              email: _textController1.text, password: _textController2.text);
-             // print(userCredential);
-             print("exist");
-             print(userCredential.user?.emailVerified);
-            MaterialPageRoute(
-              builder: (context) => HommPage(),);
-             if(userCredential.user?.emailVerified==false){
-              User? user =FirebaseAuth.instance.currentUser;
-              await user?.sendEmailVerification();
-
-
-             }
-            }
-            on FirebaseAuthException catch(e){
-              if(e.code=="user-not-found"){
-                print("user-not-found");
-              }
-              else if(e.code=="wrong-password"){
-                print("wrong-passord");
-              } 
-            }
-     
-            catch(e){
-               print("e");
-            } 
-             
-            },
-           
-            child: const Text("signInWithEmailAndPassword"),
-            ),
+                child: const Text("signIn"),
+                ),
 
 //===========================
-          ],
+              ],
+            ),
+          ),
         ),
         
         ),
